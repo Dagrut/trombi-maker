@@ -142,7 +142,7 @@
 				<text:sequence-decl text:display-outline-level="0" text:name="Drawing"/>
 			</text:sequence-decls>
 			<text:p text:style-name="P6">
-				<draw:frame draw:style-name="fr1" draw:name="TitleFrame" text:anchor-type="as-char" svg:width="7.9874in" style:rel-width="100%" draw:z-index="0">
+				<draw:frame draw:style-name="fr1" draw:name="TitleFrame" text:anchor-type="as-char" svg:width="7.9874in" style:rel-width="100%" draw:z-index="<%= zindex() %>">
 					<draw:text-box fo:min-height="0.3598in">
 						<text:p text:style-name="P5">
 							TROMBINOSCOPE - CHŒUR REGIONAL - groupe <%= group %> - année <%= year %>
@@ -178,7 +178,7 @@
 							<table:table-cell table:style-name="Tableau1.A1" table:number-rows-spanned="7" office:value-type="string">
 								<text:p text:style-name="P3">
 									<% if(user1.picture) { %>
-									<draw:frame draw:style-name="fr2" draw:name="Image1" text:anchor-type="as-char" svg:width="1.0598in" svg:height="0.5965in" draw:z-index="1">
+									<draw:frame draw:style-name="fr2" draw:name="image<%= rndtok() %>" text:anchor-type="as-char" svg:width="1.0598in" svg:height="0.5965in" draw:z-index="<%= zindex() %>">
 										<draw:image xlink:href="Pictures/<%= user1.picture %>" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/>
 									</draw:frame>
 									<% } %>
@@ -193,7 +193,7 @@
 							<table:table-cell table:style-name="Tableau1.A1" table:number-rows-spanned="7" office:value-type="string">
 								<text:p text:style-name="P2">
 									<% if(user2.picture) { %>
-										<draw:frame draw:style-name="fr3" draw:name="Image2" text:anchor-type="as-char" svg:width="1.0598in" svg:height="0.5965in" draw:z-index="2">
+										<draw:frame draw:style-name="fr2" draw:name="image<%= rndtok() %>" text:anchor-type="as-char" svg:width="1.0598in" svg:height="0.5965in" draw:z-index="<%= zindex() %>">
 											<draw:image xlink:href="Pictures/<%= user2.picture %>" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/>
 										</draw:frame>
 									<% } %>

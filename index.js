@@ -6,18 +6,36 @@ const child_process = require('child_process');
 
 const tmpdir = './tmp';
 
+function randToken() {
+	var allowedChars = 'abcdefghijklmnopqrstuvwxyz';
+	var ret = '';
+	for(var i = 0 ; i < 30 ; i++) {
+		var id = (Math.random() * allowedChars.length) | 0;
+		ret += allowedChars[id];
+	}
+	return(ret);
+}
+
 function crash(e) {
 	console.error(e);
 	process.exit(1);
 }
 
-function cleanReset(cb) {
+function cleanReset(photodir, cb) {
 	process.chdir(__dirname);
 	var cmds = [
 		'set -e',
 		'touch '+tmpdir,
 		'rm -r '+tmpdir,
 		'unzip -d '+tmpdir+' data/template.odt',
+		'orig=$PWD',
+		'cd '+tmpdir,
+		'cd Pictures',
+		'picdir=$PWD',
+		'cd "$orig"',
+		'phdir=$(base64 -d <<<'+new Buffer(photodir, 'utf8').toString('base64')+')',
+		'cd "$phdir"',
+		'cp * "$picdir"',
 	];
 	var proc = child_process.spawn('bash');
 	proc.stdout.resume();
@@ -124,6 +142,15 @@ function renderTpl(xmltpl, group, year, users, cb) {
 		group: group,
 		year: year,
 		db: users,
+		rndtok: randToken,
+		zindex: (function() {
+			var i = 0;
+			return(function() {
+				var ret = i;
+				i++;
+				return(ret);
+			});
+		})(),
 	});
 	
 	fs.writeFile(tmpdir+'/content.xml', rendered, function(err) {
@@ -155,7 +182,7 @@ function main(csvfile, photodir) {
 	async.waterfall(
 		[
 			function(next) {
-				cleanReset(function(code) {
+				cleanReset(photodir, function(code) {
 					if(code != 0)
 						next(new Error('Shell code return not zero! (cleanReset)'));
 					else
