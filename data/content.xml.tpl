@@ -145,7 +145,7 @@
 				<draw:frame draw:style-name="fr1" draw:name="TitleFrame" text:anchor-type="as-char" svg:width="7.9874in" style:rel-width="100%" draw:z-index="0">
 					<draw:text-box fo:min-height="0.3598in">
 						<text:p text:style-name="P5">
-							TROMBINOSCOPE - CHŒUR REGIONAL - groupe St Pierre - année 2017/2018
+							TROMBINOSCOPE - CHŒUR REGIONAL - groupe <%= group %> - année <%= year %>
 						</text:p>
 					</draw:text-box>
 				</draw:frame>
@@ -268,14 +268,18 @@
 								<text:p text:style-name="P8">Email :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.C2" office:value-type="string">
-								<text:p text:style-name="P10"><%= user1.email %></text:p>
+								<text:p text:style-name="P10">
+									<text:a xlink:type="simple" xlink:href="<%= user1.email %>" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><%= user1.email %></text:a>
+								</text:p>
 							</table:table-cell>
 							<table:covered-table-cell/>
 							<table:table-cell table:style-name="Tableau1.B2" office:value-type="string">
 								<text:p text:style-name="P8">Email :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.F2" office:value-type="string">
-								<text:p text:style-name="P10"><%= user2.email %></text:p>
+								<text:p text:style-name="P10">
+									<text:a xlink:type="simple" xlink:href="<%= user2.email %>" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><%= user2.email %></text:a>
+								</text:p>
 							</table:table-cell>
 						</table:table-row>
 						<table:table-row>

@@ -17,12 +17,13 @@ function cleanReset(cb) {
 		'set -e',
 		'touch '+tmpdir,
 		'rm -r '+tmpdir,
+		'unzip -d '+tmpdir+' data/template.odt',
 	];
 	var proc = child_process.spawn('bash');
 	proc.stdout.resume();
 	proc.stderr.resume();
-	proc.end(cmds.join('\n'));
-	proc.on('end', function(code, signal) {
+	proc.stdin.end(cmds.join('\n'));
+	proc.on('close', function(code, signal) {
 		cb(code);
 	});
 }
@@ -31,13 +32,12 @@ function finalClean(cb) {
 	var cmds = [
 		'set -e',
 		'rm -r '+tmpdir,
-		'unzip -d '+tmpdir+' data/template.odt',
 	];
 	var proc = child_process.spawn('bash');
 	proc.stdout.resume();
 	proc.stderr.resume();
-	proc.end(cmds.join('\n'));
-	proc.on('end', function(code, signal) {
+	proc.stdin.end(cmds.join('\n'));
+	proc.on('close', function(code, signal) {
 		cb(code);
 	});
 }
@@ -46,12 +46,12 @@ function readDataFiles(csvpath, xmlpath, cb) {
 	async.parallel(
 		[
 			function(next) {
-				fs.readFile(xmlpath, 'utf8', function(err, data) {
+				fs.readFile(csvpath, 'utf8', function(err, data) {
 					next(err, data);
 				});
 			},
 			function(next) {
-				fs.readFile(csvpath, 'utf8', function(err, data) {
+				fs.readFile(xmlpath, 'utf8', function(err, data) {
 					next(err, data);
 				});
 			},
@@ -59,9 +59,9 @@ function readDataFiles(csvpath, xmlpath, cb) {
 		function(err, data) {
 			if(err)
 				return cb(err);
-			var xmlstr = data[0];
-			var csvstr = data[1];
-			cb(null, xmlstr, csvstr);
+			var csvstr = data[0];
+			var xmlstr = data[1];
+			cb(null, csvstr, xmlstr);
 		}
 	);
 }
@@ -116,14 +116,14 @@ function parseCsv(csvstr, cb) {
 		curPush();
 		
 		cb(null, group, year, csvobjs);
-	}
+	});
 }
 
-function renderTpl(group, year, users, cb) {
+function renderTpl(xmltpl, group, year, users, cb) {
 	var rendered = ejs.render(xmltpl, {
 		group: group,
 		year: year,
-		db: csvobjs,
+		db: users,
 	});
 	
 	fs.writeFile(tmpdir+'/content.xml', rendered, function(err) {
@@ -150,34 +150,42 @@ function renderTpl(group, year, users, cb) {
 }
 
 function main(csvfile, photodir) {
-	var shared = {};
+	var xmlstring = '';
 	
-	async.serial(
+	async.waterfall(
 		[
-			cleanReset,
+			function(next) {
+				cleanReset(function(code) {
+					if(code != 0)
+						next(new Error('Shell code return not zero! (cleanReset)'));
+					else
+						next();
+				});
+			},
 			function(next) {
 				readDataFiles(csvfile, 'data/content.xml.tpl', function(err, csvstr, xmlstr) {
-					if(err)
-						return next(err);
-					shared.csvstr = csvstr;
-					shared.xmlstr = xmlstr;
-					next();
+					xmltplstring = xmlstr;
+					next(err, csvstr);
+				});
+			},
+			function(csvstr, next) {
+				parseCsv(csvstr, next);
+			},
+			function(group, year, people, next) {
+				renderTpl(xmltplstring, group, year, people, function(err) {
+					if(!err)
+						console.log('Done!');
+					next(err);
 				});
 			},
 			function(next) {
-				parseCsv(shared.csvstr, function(err, group, year, people) {
-					if(err)
-						return next(err);
-					
-					renderTpl(group, year, people, function(err) {
-						if(err)
-							return next(err);
-						console.log('Done!');
+				finalClean(function(code) {
+					if(code != 0)
+						next(new Error('Shell code return not zero! (finalClean)'));
+					else
 						next();
-					});
 				});
 			},
-			finalClean,
 		],
 		function(err) {
 			if(err)
