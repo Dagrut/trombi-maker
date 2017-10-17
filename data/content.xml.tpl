@@ -65,10 +65,10 @@
 			</style:table-properties>
 		</style:style>
 		<style:style style:name="LetterHdr.A" style:family="table-column">
-			<style:table-column-properties style:column-width="0.9111in" style:rel-column-width="1312*"/>
+			<style:table-column-properties style:column-width="1.1in" style:rel-column-width="1100*"/>
 		</style:style>
 		<style:style style:name="LetterHdr.B" style:family="table-column">
-			<style:table-column-properties style:column-width="7.0764in" style:rel-column-width="10194*"/>
+			<style:table-column-properties style:column-width="6.8875in" style:rel-column-width="6887*"/>
 		</style:style>
 		<style:style style:name="LetterHdr.A1" style:family="table-cell">
 			<style:table-cell-properties fo:background-color="#339966" fo:padding="0.0382in" fo:border-left="0.05pt solid #000000" fo:border-right="none" fo:border-top="0.05pt solid #000000" fo:border-bottom="0.05pt solid #000000">
@@ -178,7 +178,7 @@
 							<table:table-cell table:style-name="Tableau1.A1" table:number-rows-spanned="7" office:value-type="string">
 								<text:p text:style-name="P3">
 									<% if(user1.picture) { %>
-									<draw:frame draw:style-name="fr2" draw:name="image<%= rndtok() %>" text:anchor-type="as-char" svg:width="1.0598in" svg:height="0.5965in" draw:z-index="<%= zindex() %>">
+									<draw:frame draw:style-name="fr2" draw:name="image<%= rndtok() %>" text:anchor-type="as-char" svg:width="1.0598in" svg:height="1.15in" draw:z-index="<%= zindex() %>">
 										<draw:image xlink:href="Pictures/<%= user1.picture %>" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/>
 									</draw:frame>
 									<% } %>
@@ -193,7 +193,7 @@
 							<table:table-cell table:style-name="Tableau1.A1" table:number-rows-spanned="7" office:value-type="string">
 								<text:p text:style-name="P2">
 									<% if(user2.picture) { %>
-										<draw:frame draw:style-name="fr2" draw:name="image<%= rndtok() %>" text:anchor-type="as-char" svg:width="1.0598in" svg:height="0.5965in" draw:z-index="<%= zindex() %>">
+										<draw:frame draw:style-name="fr2" draw:name="image<%= rndtok() %>" text:anchor-type="as-char" svg:width="1.0598in" svg:height="1.15in" draw:z-index="<%= zindex() %>">
 											<draw:image xlink:href="Pictures/<%= user2.picture %>" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad"/>
 										</draw:frame>
 									<% } %>

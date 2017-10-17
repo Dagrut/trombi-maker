@@ -21,21 +21,36 @@ function crash(e) {
 	process.exit(1);
 }
 
+function getMimeOf(img) {
+	var hash = {
+		'gif': 'image/gif', 'ief': 'image/ief', 'jp2': 'image/jp2', 'jpg2': 'image/jp2', 'jpeg': 'image/jpeg', 'jpg': 'image/jpeg', 'jpe': 'image/jpeg', 'jpm': 'image/jpm', 'jpx': 'image/jpx', 'jpf': 'image/jpx', 'pcx': 'image/pcx', 'png': 'image/png', 'svg': 'image/svg+xml', 'svgz': 'image/svg+xml', 'tiff': 'image/tiff', 'tif': 'image/tiff', 'djvu': 'image/vnd.djvu', 'djv': 'image/vnd.djvu', 'ico': 'image/vnd.microsoft.icon', 'wbmp': 'image/vnd.wap.wbmp', 'cr2': 'image/x-canon-cr2', 'crw': 'image/x-canon-crw', 'ras': 'image/x-cmu-raster', 'cdr': 'image/x-coreldraw', 'pat': 'image/x-coreldrawpattern', 'cdt': 'image/x-coreldrawtemplate', 'cpt': 'image/x-corelphotopaint', 'erf': 'image/x-epson-erf', 'art': 'image/x-jg', 'jng': 'image/x-jng', 'bmp': 'image/x-ms-bmp', 'nef': 'image/x-nikon-nef', 'orf': 'image/x-olympus-orf', 'psd': 'image/x-photoshop', 'pnm': 'image/x-portable-anymap', 'pbm': 'image/x-portable-bitmap', 'pgm': 'image/x-portable-graymap', 'ppm': 'image/x-portable-pixmap', 'rgb': 'image/x-rgb', 'xbm': 'image/x-xbitmap', 'xpm': 'image/x-xpixmap', 'xwd': 'image/x-xwindowdump',
+	};
+	
+	var ext = img.match(/\.([^.]+)$/);
+	ext = ext && ext[1] ? ext[1] : false;
+	if(!ext)
+		return('image/x-ms-bmp');
+	else
+		return(hash[ext]);
+}
+
 function cleanReset(photodir, cb) {
 	process.chdir(__dirname);
 	var cmds = [
 		'set -e',
 		'touch '+tmpdir,
 		'rm -r '+tmpdir,
+		'rm -f trombinoscope.odt trombinoscope.pdf',
 		'unzip -d '+tmpdir+' data/template.odt',
 		'orig=$PWD',
 		'cd '+tmpdir,
 		'cd Pictures',
-		'picdir=$PWD',
+		'odtpicdir=$PWD',
 		'cd "$orig"',
-		'phdir=$(base64 -d <<<'+new Buffer(photodir, 'utf8').toString('base64')+')',
-		'cd "$phdir"',
-		'cp * "$picdir"',
+		'photosrcdir=$(base64 -d <<<'+new Buffer(photodir, 'utf8').toString('base64')+')',
+		'cd "$photosrcdir"',
+		'IFS=$\'\n\'',
+		'for i in $(ls -1); do convert "$i" -resize 256x256 "$odtpicdir/$i"; done',
 	];
 	var proc = child_process.spawn('bash');
 	proc.stdout.resume();
@@ -60,7 +75,7 @@ function finalClean(cb) {
 	});
 }
 
-function readDataFiles(csvpath, xmlpath, cb) {
+function readDataFiles(csvpath, cb) {
 	async.parallel(
 		[
 			function(next) {
@@ -69,7 +84,12 @@ function readDataFiles(csvpath, xmlpath, cb) {
 				});
 			},
 			function(next) {
-				fs.readFile(xmlpath, 'utf8', function(err, data) {
+				fs.readFile('data/content.xml.tpl', 'utf8', function(err, data) {
+					next(err, data);
+				});
+			},
+			function(next) {
+				fs.readFile('data/manifest.xml.tpl', 'utf8', function(err, data) {
 					next(err, data);
 				});
 			},
@@ -79,7 +99,8 @@ function readDataFiles(csvpath, xmlpath, cb) {
 				return cb(err);
 			var csvstr = data[0];
 			var xmlstr = data[1];
-			cb(null, csvstr, xmlstr);
+			var manifeststr = data[2];
+			cb(null, csvstr, xmlstr, manifeststr);
 		}
 	);
 }
@@ -100,9 +121,24 @@ function parseCsv(csvstr, cb) {
 			return(0);
 		});
 		
+		var csvImages = [];
+		var hasImg = {};
+		for(var i = 0 ; i < csvarr.length ; i++) {
+			var img = csvarr[i][0].trim();
+			if(!img)
+				continue;
+			if(hasImg[img])
+				continue;
+			hasImg[img] = true;
+			csvImages.push({
+				name: img,
+				mime: getMimeOf(img)
+			});
+		}
+		
 		function curPush() {
 			if(curLetterList.length > 0) {
-				csvobjs.push({
+				csvUsersFinal.push({
 					letter: curLetter,
 					users: curLetterList,
 				});
@@ -110,7 +146,7 @@ function parseCsv(csvstr, cb) {
 			}
 		}
 		
-		var csvobjs = [];
+		var csvUsersFinal = [];
 		var curLetter = null;
 		var curLetterList = [];
 		for(var i = 0 ; i < csvarr.length ; i++) {
@@ -133,11 +169,11 @@ function parseCsv(csvstr, cb) {
 		
 		curPush();
 		
-		cb(null, group, year, csvobjs);
+		cb(null, group, year, csvUsersFinal, csvImages);
 	});
 }
 
-function renderTpl(xmltpl, group, year, users, cb) {
+function renderContent(xmltpl, group, year, users, cb) {
 	var rendered = ejs.render(xmltpl, {
 		group: group,
 		year: year,
@@ -157,27 +193,46 @@ function renderTpl(xmltpl, group, year, users, cb) {
 		if(err)
 			return(cb(err));
 		
-		var proc = child_process.spawn('bash');
-		proc.stdout.resume();
-		proc.stderr.resume();
-		proc.stdin.end(
-			[
-				'set -e',
-				'cd '+tmpdir,
-				'zip -r ../trombinoscope.odt *',
-				'cd ..',
-				'libreoffice --convert-to pdf trombinoscope.odt'
-			].join('\n')
-		);
+		cb();
+	});
+}
+
+function renderManifest(xmltpl, images, cb) {
+	var rendered = ejs.render(xmltpl, {
+		images: images,
+	});
+	
+	fs.writeFile(tmpdir+'/META-INF/manifest.xml', rendered, function(err) {
+		if(err)
+			return(cb(err));
 		
-		proc.on('close', function() {
-			cb();
-		});
+		cb();
+	});
+}
+
+function generateOdtPdf(cb) {
+	var proc = child_process.spawn('bash');
+	proc.stdout.resume();
+	proc.stderr.resume();
+	proc.stdin.end(
+		[
+			'set -e',
+			'base=$PWD',
+			'cd '+tmpdir,
+			'zip -r "$base/trombinoscope.odt" *',
+			'cd "$base"',
+			'libreoffice --convert-to pdf trombinoscope.odt',
+		].join('\n')
+	);
+	
+	proc.on('close', function() {
+		cb();
 	});
 }
 
 function main(csvfile, photodir) {
-	var xmlstring = '';
+	var contentxmltpl = '';
+	var manifestxmltpl = '';
 	
 	async.waterfall(
 		[
@@ -190,20 +245,36 @@ function main(csvfile, photodir) {
 				});
 			},
 			function(next) {
-				readDataFiles(csvfile, 'data/content.xml.tpl', function(err, csvstr, xmlstr) {
-					xmltplstring = xmlstr;
+				readDataFiles(csvfile, function(err, csvstr, xmlstr, manifeststr) {
+					contentxmltpl = xmlstr;
+					manifestxmltpl = manifeststr;
 					next(err, csvstr);
 				});
 			},
 			function(csvstr, next) {
 				parseCsv(csvstr, next);
 			},
-			function(group, year, people, next) {
-				renderTpl(xmltplstring, group, year, people, function(err) {
-					if(!err)
-						console.log('Done!');
-					next(err);
-				});
+			function(group, year, people, images, next) {
+				async.parallel(
+					[
+						function(next) {
+							renderContent(contentxmltpl, group, year, people, function(err) {
+								next(err);
+							});
+						},
+						function(next) {
+							renderManifest(manifestxmltpl, images, function(err) {
+								next(err);
+							});
+						},
+					],
+					function(err, data) {
+						next(err);
+					}
+				);
+			},
+			function(next) {
+				generateOdtPdf(next);
 			},
 			function(next) {
 				finalClean(function(code) {
