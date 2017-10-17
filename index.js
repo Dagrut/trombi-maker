@@ -17,6 +17,20 @@ function cleanReset(cb) {
 		'set -e',
 		'touch '+tmpdir,
 		'rm -r '+tmpdir,
+	];
+	var proc = child_process.spawn('bash');
+	proc.stdout.resume();
+	proc.stderr.resume();
+	proc.end(cmds.join('\n'));
+	proc.on('end', function(code, signal) {
+		cb(code);
+	});
+}
+
+function finalClean(cb) {
+	var cmds = [
+		'set -e',
+		'rm -r '+tmpdir,
 		'unzip -d '+tmpdir+' data/template.odt',
 	];
 	var proc = child_process.spawn('bash');
@@ -24,7 +38,7 @@ function cleanReset(cb) {
 	proc.stderr.resume();
 	proc.end(cmds.join('\n'));
 	proc.on('end', function(code, signal) {
-		cb();
+		cb(code);
 	});
 }
 
@@ -119,7 +133,16 @@ function renderTpl(group, year, users, cb) {
 		var proc = child_process.spawn('bash');
 		proc.stdout.resume();
 		proc.stderr.resume();
-		proc.stdin.end('cd '+tmpdir+'; zip -r ../trombinoscope.odt *; cd ..; rm -r '+tmpdir+'; libreoffice --convert-to pdf trombinoscope.odt');
+		proc.stdin.end(
+			[
+				'set -e',
+				'cd '+tmpdir,
+				'zip -r ../trombinoscope.odt *',
+				'cd ..',
+				'libreoffice --convert-to pdf trombinoscope.odt'
+			].join('\n')
+		);
+		
 		proc.on('close', function() {
 			cb();
 		});
@@ -149,10 +172,12 @@ function main(csvfile, photodir) {
 					renderTpl(group, year, people, function(err) {
 						if(err)
 							return next(err);
-						console.log('Done!')
+						console.log('Done!');
+						next();
 					});
 				});
 			},
+			finalClean,
 		],
 		function(err) {
 			if(err)
