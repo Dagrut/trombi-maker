@@ -9,7 +9,7 @@
 	</office:font-face-decls>
 	<office:automatic-styles>
 		<style:style style:name="Tableau1" style:family="table">
-			<style:table-properties style:width="7.9875in" table:align="margins" style:shadow="none"/>
+			<style:table-properties style:width="7.9875in" table:align="margins" style:may-break-between-rows="false"/>
 		</style:style>
 		<style:style style:name="Tableau1.A" style:family="table-column">
 			<style:table-column-properties style:column-width="1.1in" style:rel-column-width="1584*"/>
@@ -60,7 +60,7 @@
 			<style:table-cell-properties fo:padding="0.0201in" fo:border-left="none" fo:border-right="0.05pt solid #000000" fo:border-top="none" fo:border-bottom="0.05pt solid #000000"/>
 		</style:style>
 		<style:style style:name="LetterHdr" style:family="table">
-			<style:table-properties style:width="7.9875in" table:align="margins" fo:background-color="#808080" style:shadow="none">
+			<style:table-properties style:width="7.9875in" table:align="margins" fo:background-color="#808080" fo:keep-with-next="always" style:may-break-between-rows="false">
 				<style:background-image/>
 			</style:table-properties>
 		</style:style>
@@ -225,18 +225,14 @@
 						<table:table-row>
 							<table:covered-table-cell/>
 							<table:table-cell table:style-name="Tableau1.B2" office:value-type="string">
-								<text:p text:style-name="P9">
-									<text:span text:style-name="T3">Tel fixe :</text:span>
-								</text:p>
+								<text:p text:style-name="P8">Tel fixe :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.C2" office:value-type="string">
 								<text:p text:style-name="P10"><%= user1.landline %></text:p>
 							</table:table-cell>
 							<table:covered-table-cell/>
 							<table:table-cell table:style-name="Tableau1.B2" office:value-type="string">
-								<text:p text:style-name="P9">
-									<text:span text:style-name="T3">Tel fixe :</text:span>
-								</text:p>
+								<text:p text:style-name="P8">Tel fixe :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.F2" office:value-type="string">
 								<text:p text:style-name="P10"><%= user2.landline %></text:p>
@@ -245,18 +241,14 @@
 						<table:table-row>
 							<table:covered-table-cell/>
 							<table:table-cell table:style-name="Tableau1.B2" office:value-type="string">
-								<text:p text:style-name="P9">
-									<text:span text:style-name="T3">Tel GSM :</text:span>
-								</text:p>
+								<text:p text:style-name="P8">Tel GSM :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.C2" office:value-type="string">
 								<text:p text:style-name="P10"><%= user1.gsm %></text:p>
 							</table:table-cell>
 							<table:covered-table-cell/>
 							<table:table-cell table:style-name="Tableau1.B2" office:value-type="string">
-								<text:p text:style-name="P9">
-									<text:span text:style-name="T3">Tel GSM :</text:span>
-								</text:p>
+								<text:p text:style-name="P8">Tel GSM :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.F2" office:value-type="string">
 								<text:p text:style-name="P10"><%= user2.gsm %></text:p>
@@ -269,7 +261,7 @@
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.C2" office:value-type="string">
 								<text:p text:style-name="P10">
-									<text:a xlink:type="simple" xlink:href="<%= user1.email %>" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><%= user1.email %></text:a>
+									<text:a xlink:type="simple" xlink:href="mailto:<%= user1.email %>" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><%= user1.email %></text:a>
 								</text:p>
 							</table:table-cell>
 							<table:covered-table-cell/>
@@ -278,25 +270,21 @@
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.F2" office:value-type="string">
 								<text:p text:style-name="P10">
-									<text:a xlink:type="simple" xlink:href="<%= user2.email %>" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><%= user2.email %></text:a>
+									<text:a xlink:type="simple" xlink:href="mailto:<%= user2.email %>" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><%= user2.email %></text:a>
 								</text:p>
 							</table:table-cell>
 						</table:table-row>
 						<table:table-row>
 							<table:covered-table-cell/>
 							<table:table-cell table:style-name="Tableau1.B2" office:value-type="string">
-								<text:p text:style-name="P9">
-									<text:span text:style-name="T3">Région :</text:span>
-								</text:p>
+								<text:p text:style-name="P8">Région :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.C2" office:value-type="string">
 								<text:p text:style-name="P10"><%= user1.town %></text:p>
 							</table:table-cell>
 							<table:covered-table-cell/>
 							<table:table-cell table:style-name="Tableau1.B2" office:value-type="string">
-								<text:p text:style-name="P9">
-									<text:span text:style-name="T3">Région :</text:span>
-								</text:p>
+								<text:p text:style-name="P8">Région :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.F2" office:value-type="string">
 								<text:p text:style-name="P10"><%= user2.town %></text:p>
@@ -305,18 +293,14 @@
 						<table:table-row table:style-name="Tableau1.7">
 							<table:covered-table-cell/>
 							<table:table-cell table:style-name="Tableau1.B7" office:value-type="string">
-								<text:p text:style-name="P9">
-									<text:span text:style-name="T3">Pupitre :</text:span>
-								</text:p>
+								<text:p text:style-name="P8">Pupitre :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.C7" office:value-type="string">
 								<text:p text:style-name="P10"><%= user1.voice %></text:p>
 							</table:table-cell>
 							<table:covered-table-cell/>
 							<table:table-cell table:style-name="Tableau1.B7" office:value-type="string">
-								<text:p text:style-name="P9">
-									<text:span text:style-name="T3">Pupitre :</text:span>
-								</text:p>
+								<text:p text:style-name="P8">Pupitre :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.F7" office:value-type="string">
 								<text:p text:style-name="P10"><%= user2.voice %></text:p>
