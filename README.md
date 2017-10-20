@@ -10,7 +10,7 @@ Cette commande requiert l'installation de libreoffice, ainsi que son
 accessibilité via le `$PATH`.
 
 Cette commande ne peut être utilisée que sur linux, de part l'utilisation
-extensive de commandes shell (et principalement bash : cp, rm, find, while).
+extensive de commandes shell (et principalement bash : `cp`, `rm`, `find`, `while`).
 
 ## Utilisation
 
