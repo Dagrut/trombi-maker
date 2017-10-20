@@ -1,5 +1,6 @@
 const ejs = require('ejs');
 const csv = require('csv');
+const unidecode = require('unidecode');
 const async = require('async');
 const fs = require('fs');
 const child_process = require('child_process');
@@ -114,13 +115,18 @@ function parseCsv(csvstr, cb) {
 		var year = csvarr.shift()[1];
 		csvarr.shift();
 		csvarr.sort(function(a, b) {
-			if(a[1] < b[1])
+			var lnamea = unidecode(a[1]);
+			var lnameb = unidecode(b[1]);
+			var fnamea = unidecode(a[2]);
+			var fnameb = unidecode(b[2]);
+			
+			if(lnamea < lnameb)
 				return(-1);
-			if(a[1] > b[1])
+			if(lnamea > lnameb)
 				return(1);
-			if(a[2] < b[2])
+			if(fnamea < fnameb)
 				return(-1);
-			if(a[2] > b[2])
+			if(fnamea > fnameb)
 				return(1);
 			return(0);
 		});
@@ -150,24 +156,31 @@ function parseCsv(csvstr, cb) {
 			}
 		}
 		
+		function capFirstLetter(str) {
+			return(str.toLowerCase().replace(/(^|[\s+/*@(){}[\]&"#=<>-])([^\s+/*@(){}[\]&"#=<>-])/g, function(all, prev, cur) {
+				return(prev+cur.toUpperCase());
+			}));
+		}
+		
 		var csvUsersFinal = [];
 		var curLetter = null;
 		var curLetterList = [];
 		for(var i = 0 ; i < csvarr.length ; i++) {
-			if(csvarr[i][1][0] != curLetter) {
+			var xletter = unidecode(csvarr[i][1])[0];
+			if(xletter != curLetter) {
 				curPush();
-				curLetter = csvarr[i][1][0];
+				curLetter = xletter;
 			}
 			
 			curLetterList.push({
 				picture: csvarr[i][0],
-				lastname: csvarr[i][1],
-				firstname: csvarr[i][2],
+				lastname: csvarr[i][1].toUpperCase(),
+				firstname: capFirstLetter(csvarr[i][2]),
 				landline: csvarr[i][3],
 				gsm: csvarr[i][4],
-				email: csvarr[i][5],
-				town: csvarr[i][6],
-				voice: csvarr[i][7],
+				email: csvarr[i][5].toLowerCase(),
+				town: capFirstLetter(csvarr[i][6]),
+				voice: capFirstLetter(csvarr[i][7]),
 			});
 		}
 		
