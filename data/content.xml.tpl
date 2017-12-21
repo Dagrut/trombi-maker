@@ -228,14 +228,14 @@
 								<text:p text:style-name="P8">Tel fixe :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.C2" office:value-type="string">
-								<text:p text:style-name="P10"><%= user1.landline %></text:p>
+								<text:p text:style-name="P10"><%= user1.landline && user1.landline.join(', ') %></text:p>
 							</table:table-cell>
 							<table:covered-table-cell/>
 							<table:table-cell table:style-name="Tableau1.B2" office:value-type="string">
 								<text:p text:style-name="P8">Tel fixe :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.F2" office:value-type="string">
-								<text:p text:style-name="P10"><%= user2.landline %></text:p>
+								<text:p text:style-name="P10"><%= user2.landline && user2.landline.join(', ') %></text:p>
 							</table:table-cell>
 						</table:table-row>
 						<table:table-row>
@@ -244,14 +244,14 @@
 								<text:p text:style-name="P8">Tel GSM :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.C2" office:value-type="string">
-								<text:p text:style-name="P10"><%= user1.gsm %></text:p>
+								<text:p text:style-name="P10"><%= user1.gsm && user1.gsm.join(', ') %></text:p>
 							</table:table-cell>
 							<table:covered-table-cell/>
 							<table:table-cell table:style-name="Tableau1.B2" office:value-type="string">
 								<text:p text:style-name="P8">Tel GSM :</text:p>
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.F2" office:value-type="string">
-								<text:p text:style-name="P10"><%= user2.gsm %></text:p>
+								<text:p text:style-name="P10"><%= user2.gsm && user2.gsm.join(', ') %></text:p>
 							</table:table-cell>
 						</table:table-row>
 						<table:table-row>
@@ -261,7 +261,12 @@
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.C2" office:value-type="string">
 								<text:p text:style-name="P10">
-									<text:a xlink:type="simple" xlink:href="mailto:<%= user1.email %>" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><%= user1.email %></text:a>
+									<% if(user1.email) {
+										for(var k = 0 ; k < user1.email.length ; k++) { %>
+									<text:a xlink:type="simple" xlink:href="mailto:<%= user1.email[k] %>" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><%= user1.email[k] %></text:a><%
+									if(k < user1.email.length - 1) { %>, <% } %>
+									<% }
+									} %>
 								</text:p>
 							</table:table-cell>
 							<table:covered-table-cell/>
@@ -270,7 +275,12 @@
 							</table:table-cell>
 							<table:table-cell table:style-name="Tableau1.F2" office:value-type="string">
 								<text:p text:style-name="P10">
-									<text:a xlink:type="simple" xlink:href="mailto:<%= user2.email %>" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><%= user2.email %></text:a>
+								<% if(user2.email) {
+									for(var k = 0 ; k < user2.email.length ; k++) { %>
+								<text:a xlink:type="simple" xlink:href="mailto:<%= user2.email[k] %>" text:style-name="Internet_20_link" text:visited-style-name="Visited_20_Internet_20_Link"><%= user2.email[k] %></text:a><%
+								if(k < user2.email.length - 1) { %>, <% } %>
+								<% }
+								} %>
 								</text:p>
 							</table:table-cell>
 						</table:table-row>

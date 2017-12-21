@@ -113,7 +113,18 @@ function parseCsv(csvstr, cb) {
 		
 		var group = csvarr.shift()[1];
 		var year = csvarr.shift()[1];
-		csvarr.shift();
+		var header = csvarr.shift();
+		
+		for(var i = 0 ; i < csvarr.length ;) {
+			if(csvarr[i].length < header.length)
+				csvarr.splice(i, 1);
+			else {
+				for(var j = 0 ; j < csvarr[i].length ; j++)
+					csvarr[i][j] = csvarr[i][j].trim();
+				i++;
+			}
+		}
+		
 		csvarr.sort(function(a, b) {
 			var lnamea = unidecode(a[1]);
 			var lnameb = unidecode(b[1]);
@@ -157,9 +168,16 @@ function parseCsv(csvstr, cb) {
 		}
 		
 		function capFirstLetter(str) {
-			return(str.toLowerCase().replace(/(^|[\s+/*@(){}[\]&"#=<>-])([^\s+/*@(){}[\]&"#=<>-])/g, function(all, prev, cur) {
+			return(str.trim().toLowerCase().replace(/(^|[\s+/*@(){}[\]&"#=<>-])([^\s+/*@(){}[\]&"#=<>-])/g, function(all, prev, cur) {
 				return(prev+cur.toUpperCase());
 			}));
+		}
+		
+		function fieldToArray(x) {
+			x = x.split(/[,;]/);
+			for(var i = 0 ; i < x.length ; i++)
+				x[i] = x[i].trim();
+			return(x);
 		}
 		
 		var csvUsersFinal = [];
@@ -176,9 +194,9 @@ function parseCsv(csvstr, cb) {
 				picture: csvarr[i][0],
 				lastname: csvarr[i][1].toUpperCase(),
 				firstname: capFirstLetter(csvarr[i][2]),
-				landline: csvarr[i][3],
-				gsm: csvarr[i][4],
-				email: csvarr[i][5].toLowerCase(),
+				landline: fieldToArray(csvarr[i][3]),
+				gsm: fieldToArray(csvarr[i][4]),
+				email: fieldToArray(csvarr[i][5].toLowerCase()),
 				town: capFirstLetter(csvarr[i][6]),
 				voice: capFirstLetter(csvarr[i][7]),
 			});
