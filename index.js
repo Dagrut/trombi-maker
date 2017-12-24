@@ -51,7 +51,7 @@ function cleanReset(photodir, cb) {
 		'photosrcdir=$(base64 -d <<<'+new Buffer(photodir, 'utf8').toString('base64')+')',
 		'cd "$photosrcdir"',
 		'IFS=$\'\n\'',
-		'for i in $(ls -1); do convert "$i" -resize 256x278 -gravity center -crop 256x278+0+0 +repage "$odtpicdir/$i"; done',
+		'for i in $(ls -1); do convert "$i" -resize "256x278^" -gravity center -crop 256x278+0+0 +repage "$odtpicdir/$i"; done',
 	];
 	var proc = child_process.spawn('bash');
 	proc.stdout.resume();
