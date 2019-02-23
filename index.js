@@ -26,7 +26,7 @@ function getMimeOf(img) {
 	var hash = {
 		'gif': 'image/gif', 'ief': 'image/ief', 'jp2': 'image/jp2', 'jpg2': 'image/jp2', 'jpeg': 'image/jpeg', 'jpg': 'image/jpeg', 'jpe': 'image/jpeg', 'jpm': 'image/jpm', 'jpx': 'image/jpx', 'jpf': 'image/jpx', 'pcx': 'image/pcx', 'png': 'image/png', 'svg': 'image/svg+xml', 'svgz': 'image/svg+xml', 'tiff': 'image/tiff', 'tif': 'image/tiff', 'djvu': 'image/vnd.djvu', 'djv': 'image/vnd.djvu', 'ico': 'image/vnd.microsoft.icon', 'wbmp': 'image/vnd.wap.wbmp', 'cr2': 'image/x-canon-cr2', 'crw': 'image/x-canon-crw', 'ras': 'image/x-cmu-raster', 'cdr': 'image/x-coreldraw', 'pat': 'image/x-coreldrawpattern', 'cdt': 'image/x-coreldrawtemplate', 'cpt': 'image/x-corelphotopaint', 'erf': 'image/x-epson-erf', 'art': 'image/x-jg', 'jng': 'image/x-jng', 'bmp': 'image/x-ms-bmp', 'nef': 'image/x-nikon-nef', 'orf': 'image/x-olympus-orf', 'psd': 'image/x-photoshop', 'pnm': 'image/x-portable-anymap', 'pbm': 'image/x-portable-bitmap', 'pgm': 'image/x-portable-graymap', 'ppm': 'image/x-portable-pixmap', 'rgb': 'image/x-rgb', 'xbm': 'image/x-xbitmap', 'xpm': 'image/x-xpixmap', 'xwd': 'image/x-xwindowdump',
 	};
-	
+
 	var ext = img.match(/\.([^.]+)$/);
 	ext = ext && ext[1] ? ext[1] : false;
 	if(!ext)
@@ -51,7 +51,7 @@ function cleanReset(photodir, cb) {
 		'photosrcdir=$(base64 -d <<<'+new Buffer(photodir, 'utf8').toString('base64')+')',
 		'cd "$photosrcdir"',
 		'IFS=$\'\n\'',
-		'for i in $(ls -1); do convert "$i" -resize "256x278^" -gravity center -crop 256x278+0+0 +repage "$odtpicdir/$i"; done',
+		'for i in $(ls -1); do convert "$i" -auto-orient -resize "256x278^" -gravity center -crop 256x278+0+0 +repage "$odtpicdir/$i"; done',
 	];
 	var proc = child_process.spawn('bash');
 	proc.stdout.resume();
@@ -110,11 +110,11 @@ function parseCsv(csvstr, cb) {
 	csv.parse(csvstr, function(err, csvarr) {
 		if(err)
 			return cb(err);
-		
+
 		var group = csvarr.shift()[1];
 		var year = csvarr.shift()[1];
 		var header = csvarr.shift();
-		
+
 		for(var i = 0 ; i < csvarr.length ;) {
 			if(csvarr[i].length < header.length)
 				csvarr.splice(i, 1);
@@ -124,13 +124,13 @@ function parseCsv(csvstr, cb) {
 				i++;
 			}
 		}
-		
+
 		csvarr.sort(function(a, b) {
 			var lnamea = unidecode(a[1]);
 			var lnameb = unidecode(b[1]);
 			var fnamea = unidecode(a[2]);
 			var fnameb = unidecode(b[2]);
-			
+
 			if(lnamea < lnameb)
 				return(-1);
 			if(lnamea > lnameb)
@@ -141,7 +141,7 @@ function parseCsv(csvstr, cb) {
 				return(1);
 			return(0);
 		});
-		
+
 		var csvImages = [];
 		var hasImg = {};
 		for(var i = 0 ; i < csvarr.length ; i++) {
@@ -156,7 +156,7 @@ function parseCsv(csvstr, cb) {
 				mime: getMimeOf(img)
 			});
 		}
-		
+
 		function curPush() {
 			if(curLetterList.length > 0) {
 				csvUsersFinal.push({
@@ -166,20 +166,20 @@ function parseCsv(csvstr, cb) {
 				curLetterList = [];
 			}
 		}
-		
+
 		function capFirstLetter(str) {
 			return(str.trim().toLowerCase().replace(/(^|[\s+/*@(){}[\]&"#=<>-])([^\s+/*@(){}[\]&"#=<>-])/g, function(all, prev, cur) {
 				return(prev+cur.toUpperCase());
 			}));
 		}
-		
+
 		function fieldToArray(x) {
 			x = x.split(/[,;]/);
 			for(var i = 0 ; i < x.length ; i++)
 				x[i] = x[i].trim();
 			return(x);
 		}
-		
+
 		var csvUsersFinal = [];
 		var curLetter = null;
 		var curLetterList = [];
@@ -189,7 +189,7 @@ function parseCsv(csvstr, cb) {
 				curPush();
 				curLetter = xletter;
 			}
-			
+
 			curLetterList.push({
 				picture: csvarr[i][0],
 				lastname: csvarr[i][1].toUpperCase(),
@@ -201,9 +201,9 @@ function parseCsv(csvstr, cb) {
 				voice: capFirstLetter(csvarr[i][7]),
 			});
 		}
-		
+
 		curPush();
-		
+
 		cb(null, group, year, csvUsersFinal, csvImages);
 	});
 }
@@ -223,11 +223,11 @@ function renderContent(xmltpl, group, year, users, cb) {
 			});
 		})(),
 	});
-	
+
 	fs.writeFile(tmpdir+'/content.xml', rendered, function(err) {
 		if(err)
 			return(cb(err));
-		
+
 		cb();
 	});
 }
@@ -236,11 +236,11 @@ function renderManifest(xmltpl, images, cb) {
 	var rendered = ejs.render(xmltpl, {
 		images: images,
 	});
-	
+
 	fs.writeFile(tmpdir+'/META-INF/manifest.xml', rendered, function(err) {
 		if(err)
 			return(cb(err));
-		
+
 		cb();
 	});
 }
@@ -259,7 +259,7 @@ function generateOdtPdf(cb) {
 			'libreoffice --convert-to pdf trombinoscope.odt',
 		].join('\n')
 	);
-	
+
 	proc.on('close', function() {
 		cb();
 	});
@@ -268,7 +268,7 @@ function generateOdtPdf(cb) {
 function main(csvfile, photodir) {
 	var contentxmltpl = '';
 	var manifestxmltpl = '';
-	
+
 	async.waterfall(
 		[
 			function(next) {
